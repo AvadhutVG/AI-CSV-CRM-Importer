@@ -1,0 +1,6 @@
+{
+  "name": "AI CSV CRM Importer",
+  "description": "Intelligent CSV lead importer that uses AI to align arbitrary spreadsheets into a fixed GrowEasy CRM schema.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
