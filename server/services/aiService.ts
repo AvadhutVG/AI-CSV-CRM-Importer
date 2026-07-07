@@ -56,7 +56,7 @@ export async function generateJSON(prompt: string, systemInstruction: string): P
 
 async function callGemini(prompt: string, systemInstruction: string): Promise<string> {
   const ai = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL_NAME || "gemini-3.5-flash";
+  const modelName = process.env.GEMINI_MODEL_NAME || "gemini-2.5-flash";
 
   const response = await ai.models.generateContent({
     model: modelName,
