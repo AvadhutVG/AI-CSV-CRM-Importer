@@ -16,7 +16,7 @@ interface ResultsStepProps {
 
 export default function ResultsStep({ response, onReset }: ResultsStepProps) {
   const [activeTab, setActiveTab] = useState<"success" | "skipped">("success");
-  const { records, skipped, totalImported, totalSkipped, isFallback } = response;
+  const { records, skipped, totalImported, totalSkipped, isFallback, fallbackReason } = response;
 
   const totalProcessed = totalImported + totalSkipped;
   const successRate = totalProcessed > 0 ? Math.round((totalImported / totalProcessed) * 100) : 0;
@@ -67,10 +67,10 @@ export default function ResultsStep({ response, onReset }: ResultsStepProps) {
           <div className="text-xs space-y-1">
             <h4 className="font-bold">⚠️ Local Heuristic Fallback Mapping Activated</h4>
             <p className="leading-relaxed opacity-90">
-              The external AI services are currently unconfigured or returned an authentication error (invalid API keys). GrowEasy has seamlessly activated its high-precision local regex & semantic heuristic mapping engine to process your leads.
+              The external AI services returned an error: <strong>{fallbackReason || "Unconfigured or invalid API keys"}</strong>. GrowEasy has seamlessly activated its high-precision local regex & semantic heuristic mapping engine to process your leads.
             </p>
             <p className="font-semibold mt-1">
-              To resolve this: configure a valid <strong>GEMINI_API_KEY</strong> in your Secrets Panel.
+              To resolve this: ensure you have a valid <strong>GEMINI_API_KEY</strong> configured with sufficient quota in your Secrets Panel.
             </p>
           </div>
         </div>

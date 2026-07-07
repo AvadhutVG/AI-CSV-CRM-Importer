@@ -84,7 +84,7 @@ async function processBatchWithRetry(
   startIndex: number,
   retries = 2,
   delayMs = 1000
-): Promise<{ records: CRMRecord[]; skipped: SkippedRecord[]; isFallback?: boolean }> {
+): Promise<{ records: CRMRecord[]; skipped: SkippedRecord[]; isFallback?: boolean; fallbackReason?: string }> {
   // Map row array into indexed row format for the LLM
   const indexedRows = rows.map((row, idx) => ({
     originalRowIndex: startIndex + idx,
@@ -157,7 +157,7 @@ Please extract and structure these records now.`;
         return {
           records: fallbackResults.records,
           skipped: fallbackResults.skipped,
-          isFallback: true
+          isFallback: true, fallbackReason: error.message || "Unknown API error"
         };
       }
     }
@@ -403,13 +403,14 @@ export async function processCSVRowsInBatches(
   rows: Array<Record<string, any>>,
   batchSize = 15,
   onProgress?: ProgressCallback
-): Promise<{ records: CRMRecord[]; skipped: SkippedRecord[]; isFallback?: boolean }> {
+): Promise<{ records: CRMRecord[]; skipped: SkippedRecord[]; isFallback?: boolean; fallbackReason?: string }> {
   const totalRecords = rows.length;
   const totalBatches = Math.ceil(totalRecords / batchSize);
 
   const allRecords: CRMRecord[] = [];
   const allSkipped: SkippedRecord[] = [];
   let anyFallbackUsed = false;
+  let lastFallbackReason: string | undefined;
 
   for (let i = 0; i < totalBatches; i++) {
     const startIndex = i * batchSize;
@@ -419,9 +420,10 @@ export async function processCSVRowsInBatches(
       onProgress({ batchIndex: i + 1, totalBatches });
     }
 
-    const { records, skipped, isFallback } = await processBatchWithRetry(batchRows, startIndex);
+    const { records, skipped, isFallback, fallbackReason } = await processBatchWithRetry(batchRows, startIndex);
     if (isFallback) {
       anyFallbackUsed = true;
+      if (fallbackReason) lastFallbackReason = fallbackReason;
     }
     allRecords.push(...records);
     allSkipped.push(...skipped);
@@ -431,5 +433,6 @@ export async function processCSVRowsInBatches(
     records: allRecords,
     skipped: allSkipped,
     isFallback: anyFallbackUsed,
+    fallbackReason: lastFallbackReason,
   };
 }

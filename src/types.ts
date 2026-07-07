@@ -50,6 +50,7 @@ export interface APIResponse {
   records: CRMRecord[];
   skipped: SkippedRecord[];
   isFallback?: boolean;
+  fallbackReason?: string;
 }
 
 export interface ImportBatchProgress {
